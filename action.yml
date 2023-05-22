@@ -1,5 +1,5 @@
 name: auto-update-changelog
-description: This Action will update your CHANGELOG file on every push with previous commits and trigger by following a particular commit message pattern
+description: Auto update your CHANGELOG on every push with previous commits
 author: Md. Musfiqur Rahaman
 branding:
   icon: 'refresh-cw'
