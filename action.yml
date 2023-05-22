@@ -1,5 +1,5 @@
 name: auto-update-changelog
-description: This GitHub Action will update your CHANGELOG file on every push with previous commit messages. It will trigger if you follow a particular commit message pattern
+description: This Action will update your CHANGELOG file on every push with previous commits and trigger by following a particular commit message pattern
 author: Md. Musfiqur Rahaman
 branding:
   icon: 'refresh-cw'
