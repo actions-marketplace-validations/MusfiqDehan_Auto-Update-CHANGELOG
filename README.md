@@ -32,7 +32,7 @@ jobs:
 
         steps:
             - name: auto-update-changelog
-              uses: MusfiqDehan/Auto-Update-CHANGELOG@v0.2.0
+              uses: MusfiqDehan/Auto-Update-CHANGELOG@v0.3.0
               with:
                   trigger: Update CHANGELOG for v0.1.0
                   token: ${{ secrets.GITHUB_TOKEN }}
