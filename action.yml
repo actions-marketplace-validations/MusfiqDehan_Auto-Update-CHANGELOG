@@ -44,7 +44,7 @@ runs:
               if [[ github.event.head_commit.message == "Update CHANGELOG for v$GITHUB_APP_VERSION" ]]; then
                   PREVIOUS_VERSION=$(git tag -l --sort=-creatordate | head -n 1)
                   CHANGES=$(git log --pretty="- %s (%h)" $PREVIOUS_VERSION..)
-                  echo "# v${{ env.version }}" >> CHANGELOG.md
+                  echo "# v$GITHUB_APP_VERSION" >> CHANGELOG.md
                   echo "## Changes" >> CHANGELOG.md
                   echo "$CHANGES" >> CHANGELOG.md
                   git config user.name "$GITHUB_NAME"
