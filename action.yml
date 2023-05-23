@@ -9,7 +9,7 @@ branding:
 inputs:
     trigger:
         description: "Commit Message Pattern that will trigger"
-        default: "Update CHANGELOG for v${{ env.version }}"
+        default: "Update CHANGELOG"
         required: true
 
     token:
@@ -28,12 +28,12 @@ runs:
         - run: |
               echo "version=$(python setup.py --version)" >> $GITHUB_ENV
 
-              if [[ $(git log -1 --pretty=%B) != "Update changelog for v${{ env.version }}" ]]; then
+              if [[ $(git log -1 --pretty=%B) != $INPUT_TRIGGER ]]; then
                   echo "Commit message does not match the release pattern."
                   exit 1
               fi
 
-              if contains(github.event.head_commit.message, '$INPUT_TRIGGER') == true; then
+              if [[ github.event.head_commit.message == $INPUT_TRIGGER]]; then
                   PREVIOUS_VERSION=$(git tag -l --sort=-creatordate | head -n 1)
                   CHANGES=$(git log --pretty="- %s" $PREVIOUS_VERSION..)
                   echo "# v${{ env.version }}" >> CHANGELOG.md
