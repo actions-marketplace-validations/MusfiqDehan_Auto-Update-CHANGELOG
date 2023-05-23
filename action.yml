@@ -19,6 +19,10 @@ inputs:
         description: "The GitHub token"
         required: false
         default: ""
+    version:
+        description: "The current version of the app"
+        required: true
+        default: ""
 
 runs:
     using: "composite"
@@ -30,14 +34,14 @@ runs:
               fetch-depth: 0
 
         - run: |
-              echo "version=$(python setup.py --version)" >> $GITHUB_ENV
+              echo "version=$(python3 setup.py --version)" >> $GITHUB_ENV
 
-              if [[ $(git log -1 --pretty=%B) != "Update CHANGELOG for v${{ env.version}}" ]]; then
+              if [[ $(git log -1 --pretty=%B) != "Update CHANGELOG for v$GITHUB_APP_VERSION" ]]; then
                   echo "Commit message does not match the release pattern."
                   exit 1
               fi
 
-              if [[ github.event.head_commit.message == "Update CHANGELOG for v${{ env.version}}" ]]; then
+              if [[ github.event.head_commit.message == "Update CHANGELOG for v$GITHUB_APP_VERSION" ]]; then
                   PREVIOUS_VERSION=$(git tag -l --sort=-creatordate | head -n 1)
                   CHANGES=$(git log --pretty="- %s (%h)" $PREVIOUS_VERSION..)
                   echo "# v${{ env.version }}" >> CHANGELOG.md
@@ -55,3 +59,4 @@ runs:
               GITHUB_NAME: ${{inputs.name}}
               GITHUB_EMAIL: ${{inputs.email}}
               GITHUB_COMMITTER_TOKEN: ${{ inputs.token }}
+              GITHUB_APP_VERSION: ${{ inputs.version }}
