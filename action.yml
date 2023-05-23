@@ -6,16 +6,6 @@ branding:
     icon: "refresh-cw"
     color: "white"
 
-inputs:
-    trigger:
-        description: "Commit Message Pattern that will trigger"
-        default: "Update CHANGELOG"
-        required: true
-
-    token:
-        description: "The GitHub PAT used to authenticate during push"
-        required: true
-
 runs:
     using: "composite"
 
@@ -28,17 +18,19 @@ runs:
         - run: |
               echo "version=$(python setup.py --version)" >> $GITHUB_ENV
 
-              if [[ $(git log -1 --pretty=%B) != $INPUT_TRIGGER ]]; then
+              if [[ $(git log -1 --pretty=%B) != "Update CHANGELOG for v${{ env.version}}" ]]; then
                   echo "Commit message does not match the release pattern."
                   exit 1
               fi
 
-              if [[ github.event.head_commit.message == $INPUT_TRIGGER]]; then
+              if [[ github.event.head_commit.message == "Update CHANGELOG for v${{ env.version}}" ]]; then
                   PREVIOUS_VERSION=$(git tag -l --sort=-creatordate | head -n 1)
-                  CHANGES=$(git log --pretty="- %s" $PREVIOUS_VERSION..)
+                  CHANGES=$(git log --pretty="- %s (%h)" $PREVIOUS_VERSION..)
                   echo "# v${{ env.version }}" >> CHANGELOG.md
                   echo "## Changes" >> CHANGELOG.md
                   echo "$CHANGES" >> CHANGELOG.md
+                  git config user.name "GitHub"
+                  git config user.email "noreply@github.com"
                   git commit -am "Update CHANGELOG.md with latest version by GitHub Action"
                   git push
                 fi
@@ -46,5 +38,4 @@ runs:
           shell: bash
 
           env:
-              INPUT_TRIGGER: "${{ inputs.trigger }}"
-              GITHUB_PAT: "${{ inputs.token }}"
+              GIT_COMMITTER_TOKEN: ${{ secrets.GITHUB_TOKEN }}
