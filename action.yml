@@ -1,6 +1,50 @@
 name: auto-update-changelog
 description: Auto update your CHANGELOG on every push with previous commits
 author: Md. Musfiqur Rahaman
+
 branding:
-  icon: 'refresh-cw'
-  color: 'white'
+    icon: "refresh-cw"
+    color: "white"
+
+inputs:
+    trigger:
+        description: "Commit Message Pattern that will trigger"
+        default: "Update CHANGELOG for v${{ env.version }}"
+        required: true
+
+    token:
+        description: "The GitHub PAT used to authenticate during push"
+        required: true
+
+runs:
+    using: "composite"
+
+    steps:
+        - name: Checkout code
+          uses: actions/checkout@v3
+          with:
+              fetch-depth: 0
+
+        - run: |
+              echo "version=$(python setup.py --version)" >> $GITHUB_ENV
+
+              if [[ $(git log -1 --pretty=%B) != "Update changelog for v${{ env.version }}" ]]; then
+                  echo "Commit message does not match the release pattern."
+                  exit 1
+              fi
+
+              if contains(github.event.head_commit.message, '$INPUT_TRIGGER') == true; then
+                  PREVIOUS_VERSION=$(git tag -l --sort=-creatordate | head -n 1)
+                  CHANGES=$(git log --pretty="- %s" $PREVIOUS_VERSION..)
+                  echo "# v${{ env.version }}" >> CHANGELOG.md
+                  echo "## Changes" >> CHANGELOG.md
+                  echo "$CHANGES" >> CHANGELOG.md
+                  git commit -am "Update CHANGELOG.md with latest version by GitHub Action"
+                  git push
+                fi
+
+          shell: bash
+
+          env:
+              INPUT_TRIGGER: "${{ inputs.trigger }}"
+              GITHUB_PAT: "${{ inputs.token }}"
